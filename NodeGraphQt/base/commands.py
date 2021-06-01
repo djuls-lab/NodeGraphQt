@@ -17,7 +17,7 @@ class PropertyChangedCmd(QtWidgets.QUndoCommand):
 
     def __init__(self, node, name, value):
         QtWidgets.QUndoCommand.__init__(self)
-        if name == 'name':
+        if name == "name":
             self.setText('renamed "{}" to "{}"'.format(node.name(), value))
         else:
             self.setText('property "{}:{}"'.format(node.name(), name))
@@ -38,7 +38,7 @@ class PropertyChangedCmd(QtWidgets.QUndoCommand):
         view = self.node.view
 
         # view widgets.
-        if hasattr(view, 'widgets') and name in view.widgets.keys():
+        if hasattr(view, "widgets") and name in view.widgets.keys():
             # check if previous value is identical to current value,
             # prevent signals from causing a infinite loop.
             if view.widgets[name].value != value:
@@ -47,8 +47,8 @@ class PropertyChangedCmd(QtWidgets.QUndoCommand):
         # view properties.
         if name in view.properties.keys():
             # remap "pos" to "xy_pos" node view has pre-existing pos method.
-            if name == 'pos':
-                name = 'xy_pos'
+            if name == "pos":
+                name = "xy_pos"
             setattr(view, name, value)
 
     def undo(self):
@@ -121,7 +121,7 @@ class NodeAddedCmd(QtWidgets.QUndoCommand):
 
     def __init__(self, graph, node, pos=None):
         QtWidgets.QUndoCommand.__init__(self)
-        self.setText('added node')
+        self.setText("added node")
         self.viewer = graph.viewer()
         self.model = graph.model
         self.node = node
@@ -150,7 +150,7 @@ class NodeRemovedCmd(QtWidgets.QUndoCommand):
 
     def __init__(self, graph, node):
         QtWidgets.QUndoCommand.__init__(self)
-        self.setText('deleted node')
+        self.setText("deleted node")
         self.scene = graph.scene()
         self.model = graph.model
         self.node = node
@@ -387,6 +387,6 @@ class PortVisibleCmd(QtWidgets.QUndoCommand):
 
     def undo(self):
         self.set_visible(not self.visible)
-        
+
     def redo(self):
         self.set_visible(self.visible)

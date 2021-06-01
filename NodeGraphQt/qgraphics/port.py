@@ -2,7 +2,8 @@
 from Qt import QtGui, QtCore, QtWidgets
 
 from ..constants import (
-    IN_PORT, OUT_PORT,
+    IN_PORT,
+    OUT_PORT,
     PORT_DEFAULT_COLOR,
     PORT_DEFAULT_BORDER_COLOR,
     PORT_DEFAULT_SIZE,
@@ -12,7 +13,8 @@ from ..constants import (
     PORT_ACTIVE_COLOR,
     PORT_ACTIVE_BORDER_COLOR,
     Z_VAL_PORT,
-    ITEM_CACHE_MODE)
+    ITEM_CACHE_MODE,
+)
 
 
 class PortItem(QtWidgets.QGraphicsItem):
@@ -27,11 +29,12 @@ class PortItem(QtWidgets.QGraphicsItem):
         self.setFlag(self.ItemIsSelectable, False)
         self.setFlag(self.ItemSendsScenePositionChanges, True)
         self.setZValue(Z_VAL_PORT)
+        self._parent = parent
         self._pipes = []
         self._width = PORT_DEFAULT_SIZE
         self._height = PORT_DEFAULT_SIZE
         self._hovered = False
-        self._name = 'port'
+        self._name = "port"
         self._display_name = True
         self._color = PORT_DEFAULT_COLOR
         self._border_color = PORT_DEFAULT_BORDER_COLOR
@@ -48,6 +51,9 @@ class PortItem(QtWidgets.QGraphicsItem):
 
     def boundingRect(self):
         return QtCore.QRectF(0.0, 0.0, self._width + PORT_FALLOFF, self._height)
+
+    def parent(self):
+        return self._parent
 
     def paint(self, painter, option, widget):
         """
@@ -68,6 +74,9 @@ class PortItem(QtWidgets.QGraphicsItem):
         # painter.setPen(pen)
         # painter.drawRect(self.boundingRect())
         # ----------------------------------------------------------------------
+
+        if self.parent().disabled:
+            painter.setOpacity(0.5)
 
         rect_w = self._width / 1.8
         rect_h = self._height / 1.8
@@ -94,9 +103,9 @@ class PortItem(QtWidgets.QGraphicsItem):
             painter.setBrush(border_color)
             w = port_rect.width() / 2.5
             h = port_rect.height() / 2.5
-            rect = QtCore.QRectF(port_rect.center().x() - w / 2,
-                                 port_rect.center().y() - h / 2,
-                                 w, h)
+            rect = QtCore.QRectF(
+                port_rect.center().x() - w / 2, port_rect.center().y() - h / 2, w, h
+            )
             border_color = QtGui.QColor(*self.border_color)
             pen = QtGui.QPen(border_color, 1.6)
             painter.setPen(pen)
@@ -111,11 +120,11 @@ class PortItem(QtWidgets.QGraphicsItem):
                 h = port_rect.height() / 1.8
             else:
                 painter.setBrush(border_color)
-                w = port_rect.width() / 3.5
-                h = port_rect.height() / 3.5
-            rect = QtCore.QRectF(port_rect.center().x() - w / 2,
-                                 port_rect.center().y() - h / 2,
-                                 w, h)
+                w = port_rect.width() / 1.8  # / 3.5
+                h = port_rect.height() / 1.8  # / 3.5
+            rect = QtCore.QRectF(
+                port_rect.center().x() - w / 2, port_rect.center().y() - h / 2, w, h
+            )
             painter.drawEllipse(rect)
         painter.restore()
 
@@ -126,14 +135,14 @@ class PortItem(QtWidgets.QGraphicsItem):
 
     def mousePressEvent(self, event):
         super(PortItem, self).mousePressEvent(event)
-        
+
     def mouseReleaseEvent(self, event):
         super(PortItem, self).mouseReleaseEvent(event)
 
     def hoverEnterEvent(self, event):
         self._hovered = True
         super(PortItem, self).hoverEnterEvent(event)
-        
+
     def hoverLeaveEvent(self, event):
         self._hovered = False
         super(PortItem, self).hoverLeaveEvent(event)
@@ -164,7 +173,7 @@ class PortItem(QtWidgets.QGraphicsItem):
     @property
     def connected_ports(self):
         ports = []
-        port_types = {IN_PORT: 'output_port', OUT_PORT: 'input_port'}
+        port_types = {IN_PORT: "output_port", OUT_PORT: "input_port"}
         for pipe in self.connected_pipes:
             ports.append(getattr(pipe, port_types[self.port_type]))
         return ports
@@ -186,7 +195,7 @@ class PortItem(QtWidgets.QGraphicsItem):
         return self._name
 
     @name.setter
-    def name(self, name=''):
+    def name(self, name=""):
         self._name = name.strip()
 
     @property
@@ -229,10 +238,10 @@ class PortItem(QtWidgets.QGraphicsItem):
     @locked.setter
     def locked(self, value=False):
         self._locked = value
-        conn_type = 'multi' if self.multi_connection else 'single'
-        tooltip = '{}: ({})'.format(self.name, conn_type)
+        conn_type = "multi" if self.multi_connection else "single"
+        tooltip = "{}: ({})".format(self.name, conn_type)
         if value:
-            tooltip += ' (L)'
+            tooltip += " (L)"
         self.setToolTip(tooltip)
 
     @property
@@ -241,8 +250,8 @@ class PortItem(QtWidgets.QGraphicsItem):
 
     @multi_connection.setter
     def multi_connection(self, mode=False):
-        conn_type = 'multi' if mode else 'single'
-        self.setToolTip('{}: ({})'.format(self.name, conn_type))
+        conn_type = "multi" if mode else "single"
+        self.setToolTip("{}: ({})".format(self.name, conn_type))
         self._multi_connection = mode
 
     @property
@@ -263,7 +272,7 @@ class PortItem(QtWidgets.QGraphicsItem):
             viewer.establish_connection(self, port)
 
     def disconnect_from(self, port):
-        port_types = {IN_PORT: 'output_port', OUT_PORT: 'input_port'}
+        port_types = {IN_PORT: "output_port", OUT_PORT: "input_port"}
         for pipe in self.connected_pipes:
             connected_port = getattr(pipe, port_types[self.port_type])
             if connected_port == port:
@@ -306,13 +315,13 @@ class CustomPortItem(PortItem):
             rect_y = self.boundingRect().center().y() - (rect_h / 2)
             port_rect = QtCore.QRectF(rect_x, rect_y, rect_w, rect_h)
             port_info = {
-                'port_type': self.port_type,
-                'color': self.color,
-                'border_color': self.border_color,
-                'multi_connection': self.multi_connection,
-                'connected': bool(self.connected_pipes),
-                'hovered': self.hovered,
-                'locked': self.locked,
+                "port_type": self.port_type,
+                "color": self.color,
+                "border_color": self.border_color,
+                "multi_connection": self.multi_connection,
+                "connected": bool(self.connected_pipes),
+                "hovered": self.hovered,
+                "locked": self.locked,
             }
             self._port_painter(painter, port_rect, port_info)
         else:

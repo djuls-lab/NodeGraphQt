@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from NodeGraphQt import NodeGraph, setup_context_menu, \
-    QtWidgets, QtCore, PropertiesBinWidget, BackdropNode
+from NodeGraphQt import NodeGraph, setup_context_menu, PropertiesBinWidget, BackdropNode
+from Qt import QtWidgets, QtCore
 from example_auto_nodes import Publish, RootNode, update_nodes, setup_node_menu
 import importlib
 import inspect
@@ -24,7 +24,7 @@ def get_nodes_from_folder(folder_path):
 
         for name, obj in inspect.getmembers(importlib.import_module(module_name)):
             if inspect.isclass(obj) and filename in str(obj):
-                if len(inspect.getmembers(obj)) > 0 and obj.__identifier__ != '__None':
+                if len(inspect.getmembers(obj)) > 0 and obj.__identifier__ != "__None":
                     nodes.append(obj)
     return nodes
 
@@ -46,9 +46,9 @@ def get_published_nodes_from_folder(folder_path):
     return nodes
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
-    app = QtWidgets.QApplication()
+    app = QtWidgets.QApplication([])
 
     # create node graph.
     graph = NodeGraph()
@@ -65,13 +65,18 @@ if __name__ == '__main__':
     def show_prop_bin(node):
         if not properties_bin.isVisible():
             properties_bin.show()
+
     graph.node_double_clicked.connect(show_prop_bin)
 
     # register nodes
     reg_nodes = get_nodes_from_folder(os.getcwd() + "/example_auto_nodes")
-    BackdropNode.__identifier__ = 'Utility::Backdrop'
+    BackdropNode.__identifier__ = "Utility::Backdrop"
     reg_nodes.append(BackdropNode)
-    reg_nodes.extend(get_published_nodes_from_folder(os.getcwd() + "/example_auto_nodes/published_nodes"))
+    reg_nodes.extend(
+        get_published_nodes_from_folder(
+            os.getcwd() + "/example_auto_nodes/published_nodes"
+        )
+    )
     [graph.register_node(n) for n in reg_nodes]
 
     # create root node
@@ -79,7 +84,7 @@ if __name__ == '__main__':
     graph.add_node(RootNode())
 
     # create test nodes
-    graph.load_session(r'example_auto_nodes/networks/example_SubGraph.json')
+    graph.load_session(r"example_auto_nodes/networks/example_SubGraph.json")
     update_nodes(graph.root_node().children())
 
     # widget used for the node graph.

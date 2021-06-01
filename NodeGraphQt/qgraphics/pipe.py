@@ -5,20 +5,31 @@ from Qt import QtCore, QtGui, QtWidgets
 
 from .port import PortItem
 from ..constants import (
-    PIPE_DEFAULT_COLOR, PIPE_ACTIVE_COLOR,
-    PIPE_HIGHLIGHT_COLOR, PIPE_DISABLED_COLOR,
-    PIPE_STYLE_DASHED, PIPE_STYLE_DEFAULT, PIPE_STYLE_DOTTED,
-    PIPE_LAYOUT_STRAIGHT, PIPE_WIDTH, IN_PORT, OUT_PORT, Z_VAL_PIPE,
+    PIPE_DEFAULT_COLOR,
+    PIPE_ACTIVE_COLOR,
+    PIPE_HIGHLIGHT_COLOR,
+    PIPE_DISABLED_COLOR,
+    PIPE_STYLE_DASHED,
+    PIPE_STYLE_DEFAULT,
+    PIPE_STYLE_DOTTED,
+    PIPE_LAYOUT_STRAIGHT,
+    PIPE_WIDTH,
+    IN_PORT,
+    OUT_PORT,
+    Z_VAL_PIPE,
     Z_VAL_NODE_WIDGET,
-    PIPE_LAYOUT_ANGLE, PIPE_LAYOUT_CURVED,
+    PIPE_LAYOUT_ANGLE,
+    PIPE_LAYOUT_CURVED,
     ITEM_CACHE_MODE,
-    NODE_LAYOUT_VERTICAL, NODE_LAYOUT_HORIZONTAL,
-    NODE_LAYOUT_DIRECTION)
+    NODE_LAYOUT_VERTICAL,
+    NODE_LAYOUT_HORIZONTAL,
+    NODE_LAYOUT_DIRECTION,
+)
 
 PIPE_STYLES = {
     PIPE_STYLE_DEFAULT: QtCore.Qt.SolidLine,
     PIPE_STYLE_DASHED: QtCore.Qt.DashLine,
-    PIPE_STYLE_DOTTED: QtCore.Qt.DotLine
+    PIPE_STYLE_DOTTED: QtCore.Qt.DotLine,
 }
 
 
@@ -29,6 +40,7 @@ class Pipe(QtWidgets.QGraphicsPathItem):
 
     def __init__(self, input_port=None, output_port=None):
         super(Pipe, self).__init__()
+
         self.setZValue(Z_VAL_PIPE)
         self.setAcceptHoverEvents(True)
         self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable)
@@ -46,10 +58,18 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         self.setCacheMode(ITEM_CACHE_MODE)
 
     def __repr__(self):
-        in_name = self._input_port.name if self._input_port else ''
-        out_name = self._output_port.name if self._output_port else ''
-        return '{}.Pipe(\'{}\', \'{}\')'.format(
-            self.__module__, in_name, out_name)
+        in_name = self._input_port.name if self._input_port else ""
+        out_name = self._output_port.name if self._output_port else ""
+        return "{}.Pipe('{}', '{}')".format(self.__module__, in_name, out_name)
+
+    def boundingRect(self):
+        size = 6.0
+        rect = self.path().boundingRect()
+        if rect.width() < 2 * size:
+            rect.adjust(-size, 0, size, 0)
+        if rect.height() < 2 * size:
+            rect.adjust(0, -size, 0, size)
+        return rect
 
     def hoverEnterEvent(self, event):
         self.activate()
@@ -124,7 +144,7 @@ class Pipe(QtWidgets.QGraphicsPathItem):
 
             pen_width = 0.6
             if dist < 1.0:
-                pen_width *= (1.0 + dist)
+                pen_width *= 1.0 + dist
 
             pen = QtGui.QPen(color, pen_width)
             pen.setCapStyle(QtCore.Qt.RoundCap)
@@ -133,9 +153,9 @@ class Pipe(QtWidgets.QGraphicsPathItem):
 
             transform = QtGui.QTransform()
             transform.translate(cen_x, cen_y)
-            radians = math.atan2(tgt_pt.y() - loc_pt.y(),
-                                 tgt_pt.x() - loc_pt.x())
-            degrees = math.degrees(radians) - 90
+            # radians = math.atan2(tgt_pt.y() - loc_pt.y(), tgt_pt.x() - loc_pt.x())
+            # degrees = math.degrees(radians) - 90
+            degrees = 270 - self.path().angleAtPercent(0.5)
             transform.rotate(degrees)
             if dist < 1.0:
                 transform.scale(dist, dist)
@@ -159,12 +179,26 @@ class Pipe(QtWidgets.QGraphicsPathItem):
 
             max_height = start_port.node.boundingRect().height()
             tangent = min(tangent, max_height)
+
+            # center = (pos1 + pos2) / 2
+            # dist = math.hypot(tangent.x() - center.x(), tangent.y() - center.y())
+
+            # mult = 1
+            # if dist < 100:
+            #     mult = dist / 100
+
+            mult = 1.0
+            dist_x = abs(pos1.x() - pos2.x())
+            dist_y = abs(pos1.y() - pos2.y())
+            if dist_x < 100 or dist_y < 100:
+                mult = min(dist_x, dist_y) / 100
+
             if start_port.port_type == IN_PORT:
-                ctr_offset_y1 -= tangent
-                ctr_offset_y2 += tangent
+                ctr_offset_y1 -= tangent * mult
+                ctr_offset_y2 += tangent * mult
             else:
-                ctr_offset_y1 += tangent
-                ctr_offset_y2 -= tangent
+                ctr_offset_y1 += tangent * mult
+                ctr_offset_y2 -= tangent * mult
 
             ctr_point1 = QtCore.QPointF(pos1.x(), ctr_offset_y1)
             ctr_point2 = QtCore.QPointF(pos2.x(), ctr_offset_y2)
@@ -172,7 +206,7 @@ class Pipe(QtWidgets.QGraphicsPathItem):
             self.setPath(path)
         elif self.viewer_pipe_layout() == PIPE_LAYOUT_ANGLE:
             ctr_offset_y1, ctr_offset_y2 = pos1.y(), pos2.y()
-            distance = abs(ctr_offset_y1 - ctr_offset_y2)/2
+            distance = abs(ctr_offset_y1 - ctr_offset_y2) / 2
             if start_port.port_type == IN_PORT:
                 ctr_offset_y1 -= distance
                 ctr_offset_y2 += distance
@@ -203,12 +237,19 @@ class Pipe(QtWidgets.QGraphicsPathItem):
 
             max_width = start_port.node.boundingRect().width()
             tangent = min(tangent, max_width)
+
+            mult = 1.0
+            dist_x = abs(pos1.x() - pos2.x())
+            dist_y = abs(pos1.y() - pos2.y())
+            if dist_x < 100 or dist_y < 100:
+                mult = min(dist_x, dist_y) / 100
+
             if start_port.port_type == IN_PORT:
-                ctr_offset_x1 -= tangent
-                ctr_offset_x2 += tangent
+                ctr_offset_x1 -= tangent * mult
+                ctr_offset_x2 += tangent * mult
             else:
-                ctr_offset_x1 += tangent
-                ctr_offset_x2 -= tangent
+                ctr_offset_x1 += tangent * mult
+                ctr_offset_x2 -= tangent * mult
 
             ctr_point1 = QtCore.QPointF(ctr_offset_x1, pos1.y())
             ctr_point2 = QtCore.QPointF(ctr_offset_x2, pos2.y())
@@ -321,10 +362,7 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         self.setPen(pen)
 
     def set_connections(self, port1, port2):
-        ports = {
-            port1.port_type: port1,
-            port2.port_type: port2
-        }
+        ports = {port1.port_type: port1, port2.port_type: port2}
         self.input_port = ports[IN_PORT]
         self.output_port = ports[OUT_PORT]
         ports[IN_PORT].add_pipe(self)
@@ -392,7 +430,6 @@ class Pipe(QtWidgets.QGraphicsPathItem):
 
 
 class LivePipe(Pipe):
-
     def __init__(self):
         super(LivePipe, self).__init__()
         self.setZValue(Z_VAL_NODE_WIDGET + 1)
@@ -434,41 +471,44 @@ class LivePipe(Pipe):
 
         # draw start circle
         size = 5.0
-        rect = QtCore.QRectF(start_pt.x() - (size / 2),
-                             start_pt.y() - (size / 2),
-                             size, size)
+        rect = QtCore.QRectF(
+            start_pt.x() - (size / 2), start_pt.y() - (size / 2), size, size
+        )
         painter.setBrush(color)
         painter.drawEllipse(rect)
 
-        # draw middle circle
-        size = 10.0
-        if dist < 50.0:
-            size *= (dist / 50.0)
-        rect = QtCore.QRectF(cen_x-(size/2), cen_y-(size/2), size, size)
-        painter.setBrush(color)
-        painter.setPen(QtGui.QPen(color.darker(130), pen_width))
-        painter.drawEllipse(rect)
+        # # draw middle circle
+        # size = 10.0
+        # if dist < 50.0:
+        #     size *= dist / 50.0
+        # rect = QtCore.QRectF(cen_x - (size / 2), cen_y - (size / 2), size, size)
+        # painter.setBrush(color)
+        # painter.setPen(QtGui.QPen(color.darker(130), pen_width))
+        # painter.drawEllipse(rect)
 
-        # draw arrow
-        color.setAlpha(255)
-        painter.setBrush(color.darker(200))
+        # # draw arrow
+        # color.setAlpha(255)
+        # painter.setBrush(color.darker(200))
 
-        pen_width = 0.6
-        if dist < 1.0:
-            pen_width *= 1.0 + dist
-        painter.setPen(QtGui.QPen(color, pen_width))
+        # pen_width = 0.6
+        # if dist < 1.0:
+        #     pen_width *= 1.0 + dist
+        # painter.setPen(QtGui.QPen(color, pen_width))
 
-        transform = QtGui.QTransform()
-        transform.translate(tgt_pt.x(), tgt_pt.y())
+        # transform = QtGui.QTransform()
+        # transform.translate(tgt_pt.x(), tgt_pt.y())
 
-        radians = math.atan2(tgt_pt.y() - loc_pt.y(),
-                             tgt_pt.x() - loc_pt.x())
-        degrees = math.degrees(radians) + 90
-        transform.rotate(degrees)
+        # # radians = math.atan2(tgt_pt.y() - loc_pt.y(), tgt_pt.x() - loc_pt.x())
+        # # degrees = math.degrees(radians) + 90
+        # degrees = 270 - self.path().angleAtPercent(0.5)
 
-        scale = 1.0
-        if dist < 20.0:
-            scale = dist / 20.0
-        transform.scale(scale, scale)
-        painter.drawPolygon(transform.map(self._arrow))
+        # transform.rotate(degrees)
+
+        # scale = 1.0
+        # if dist < 100.0:
+        #     scale = dist / 100.0
+        # transform.scale(scale, scale)
+
+        # painter.drawPolygon(transform.map(self._arrow))
+
         painter.restore()

@@ -3,12 +3,14 @@ from distutils.version import LooseVersion
 
 from Qt import QtGui, QtCore
 
-from ..constants import (PIPE_LAYOUT_CURVED,
-                         PIPE_LAYOUT_STRAIGHT,
-                         PIPE_LAYOUT_ANGLE,
-                         NODE_LAYOUT_VERTICAL,
-                         NODE_LAYOUT_HORIZONTAL,
-                         NODE_LAYOUT_DIRECTION)
+from ..constants import (
+    PIPE_LAYOUT_CURVED,
+    PIPE_LAYOUT_STRAIGHT,
+    PIPE_LAYOUT_ANGLE,
+    NODE_LAYOUT_VERTICAL,
+    NODE_LAYOUT_HORIZONTAL,
+    NODE_LAYOUT_DIRECTION,
+)
 
 
 # menu
@@ -34,79 +36,77 @@ def setup_context_menu(graph):
     Args:
         graph (NodeGraphQt.NodeGraph): node graph.
     """
-    root_menu = graph.get_context_menu('graph')
+    root_menu = graph.get_context_menu("graph")
 
-    file_menu = root_menu.add_menu('&File')
-    edit_menu = root_menu.add_menu('&Edit')
+    file_menu = root_menu.add_menu("&File")
+    edit_menu = root_menu.add_menu("&Edit")
 
     # create "File" menu.
-    file_menu.add_command('Open...', _open_session, QtGui.QKeySequence.Open)
-    file_menu.add_command('Import...', _import_session)
-    file_menu.add_command('Save...', _save_session, QtGui.QKeySequence.Save)
-    file_menu.add_command('Save As...', _save_session_as, 'Ctrl+Shift+S')
-    file_menu.add_command('New Session', _new_session)
+    file_menu.add_command("Open...", _open_session, QtGui.QKeySequence.Open)
+    file_menu.add_command("Import...", _import_session)
+    file_menu.add_command("Save...", _save_session, QtGui.QKeySequence.Save)
+    file_menu.add_command("Save As...", _save_session_as, "Ctrl+Shift+S")
+    file_menu.add_command("New Session", _new_session)
 
     file_menu.add_separator()
 
-    file_menu.add_command('Zoom In', _zoom_in, '=')
-    file_menu.add_command('Zoom Out', _zoom_out, '-')
-    file_menu.add_command('Reset Zoom', _reset_zoom, 'H')
+    file_menu.add_command("Zoom In", _zoom_in, "=")
+    file_menu.add_command("Zoom Out", _zoom_out, "-")
+    file_menu.add_command("Reset Zoom", _reset_zoom, "H")
 
     # create "Edit" menu.
-    undo_actn = graph.undo_stack().createUndoAction(graph.viewer(), '&Undo')
-    if LooseVersion(QtCore.qVersion()) >= LooseVersion('5.10'):
+    undo_actn = graph.undo_stack().createUndoAction(graph.viewer(), "&Undo")
+    if LooseVersion(QtCore.qVersion()) >= LooseVersion("5.10"):
         undo_actn.setShortcutVisibleInContextMenu(True)
     undo_actn.setShortcuts(QtGui.QKeySequence.Undo)
     edit_menu.qmenu.addAction(undo_actn)
 
-    redo_actn = graph.undo_stack().createRedoAction(graph.viewer(), '&Redo')
-    if LooseVersion(QtCore.qVersion()) >= LooseVersion('5.10'):
+    redo_actn = graph.undo_stack().createRedoAction(graph.viewer(), "&Redo")
+    if LooseVersion(QtCore.qVersion()) >= LooseVersion("5.10"):
         redo_actn.setShortcutVisibleInContextMenu(True)
     redo_actn.setShortcuts(QtGui.QKeySequence.Redo)
     edit_menu.qmenu.addAction(redo_actn)
 
     edit_menu.add_separator()
-    edit_menu.add_command('Clear Undo History', _clear_undo)
-    edit_menu.add_command('Show Undo History', _show_undo_view)
+    edit_menu.add_command("Clear Undo History", _clear_undo)
+    edit_menu.add_command("Show Undo History", _show_undo_view)
     edit_menu.add_separator()
 
-    edit_menu.add_command('Copy', _copy_nodes, QtGui.QKeySequence.Copy)
-    edit_menu.add_command('Cut', _cut_nodes, QtGui.QKeySequence.Cut)
-    edit_menu.add_command('Paste', _paste_nodes, QtGui.QKeySequence.Paste)
-    edit_menu.add_command('Delete', _delete_items, QtGui.QKeySequence.Delete)
-
-    edit_menu.add_separator()
-
-    edit_menu.add_command('Select all', _select_all_nodes, 'Ctrl+A')
-    edit_menu.add_command('Deselect all', _clear_node_selection, 'Ctrl+Shift+A')
-    edit_menu.add_command('Enable/Disable', _disable_nodes, 'D')
-
-    edit_menu.add_command('Duplicate', _duplicate_nodes, 'Alt+C')
-    edit_menu.add_command('Center Selection', _fit_to_selection, 'F')
+    edit_menu.add_command("Copy", _copy_nodes, QtGui.QKeySequence.Copy)
+    edit_menu.add_command("Cut", _cut_nodes, QtGui.QKeySequence.Cut)
+    edit_menu.add_command("Paste", _paste_nodes, QtGui.QKeySequence.Paste)
+    edit_menu.add_command("Delete", _delete_items, QtGui.QKeySequence.Delete)
 
     edit_menu.add_separator()
 
-    edit_menu.add_command(
-        'Auto Layout Up Stream', _layout_graph_up, 'L')
-    edit_menu.add_command(
-        'Auto Layout Down Stream', _layout_graph_down, 'Ctrl+L')
+    edit_menu.add_command("Select all", _select_all_nodes, "Ctrl+A")
+    edit_menu.add_command("Deselect all", _clear_node_selection, "Ctrl+Shift+A")
+    edit_menu.add_command("Enable/Disable", _disable_nodes, "D")
+
+    edit_menu.add_command("Duplicate", _duplicate_nodes, "Alt+C")
+    edit_menu.add_command("Center Selection", _fit_to_selection, "F")
 
     edit_menu.add_separator()
 
-    edit_menu.add_command('Jump In', _jump_in, 'I')
-    edit_menu.add_command('Jump Out', _jump_out, 'O')
+    edit_menu.add_command("Auto Layout Up Stream", _layout_graph_up, "L")
+    edit_menu.add_command("Auto Layout Down Stream", _layout_graph_down, "Ctrl+L")
 
     edit_menu.add_separator()
 
-    pipe_menu = edit_menu.add_menu('&Pipe')
-    pipe_menu.add_command('Curved Pipe', _curved_pipe)
-    pipe_menu.add_command('Straight Pipe', _straight_pipe)
-    pipe_menu.add_command('Angle Pipe', _angle_pipe)
+    edit_menu.add_command("Jump In", _jump_in, "I")
+    edit_menu.add_command("Jump Out", _jump_out, "O")
 
-    bg_menu = edit_menu.add_menu('&Grid Mode')
-    bg_menu.add_command('None', _bg_grid_none)
-    bg_menu.add_command('Lines', _bg_grid_lines)
-    bg_menu.add_command('Dots', _bg_grid_dots)
+    edit_menu.add_separator()
+
+    pipe_menu = edit_menu.add_menu("&Pipe")
+    pipe_menu.add_command("Curved Pipe", _curved_pipe)
+    pipe_menu.add_command("Straight Pipe", _straight_pipe)
+    pipe_menu.add_command("Angle Pipe", _angle_pipe)
+
+    bg_menu = edit_menu.add_menu("&Grid Mode")
+    bg_menu.add_command("None", _bg_grid_none)
+    bg_menu.add_command("Lines", _bg_grid_lines)
+    bg_menu.add_command("Dots", _bg_grid_dots)
 
     edit_menu.add_separator()
 
@@ -178,9 +178,9 @@ def _save_session(graph):
     current = graph.current_session()
     if current:
         graph.save_session(current)
-        msg = 'Session layout saved:\n{}'.format(current)
+        msg = "Session layout saved:\n{}".format(current)
         viewer = graph.viewer()
-        viewer.message_dialog(msg, title='Session Saved')
+        viewer.message_dialog(msg, title="Session Saved")
     else:
         _save_session_as(graph)
 
@@ -207,7 +207,7 @@ def _new_session(graph):
         graph (NodeGraphQt.NodeGraph): node graph.
     """
     viewer = graph.viewer()
-    if viewer.question_dialog('Clear Current Session?', 'Clear Session'):
+    if viewer.question_dialog("Clear Current Session?", "Clear Session"):
         graph.clear_session()
 
 
@@ -219,8 +219,8 @@ def _clear_undo(graph):
         graph (NodeGraphQt.NodeGraph): node graph.
     """
     viewer = graph.viewer()
-    msg = 'Clear all undo history, Are you sure?'
-    if viewer.question_dialog('Clear Undo History', msg):
+    msg = "Clear all undo history, Are you sure?"
+    if viewer.question_dialog("Clear Undo History", msg):
         graph.clear_undo_stack()
 
 
@@ -309,7 +309,7 @@ def _layout_graph_down(graph):
 
 def _layout_graph_up(graph):
     nodes = graph.selected_nodes() or graph.all_nodes()
-    graph.auto_layout_nodes(nodes-nodes, down_stream=False)
+    graph.auto_layout_nodes(nodes - nodes, down_stream=False)
 
 
 # topological_sort
@@ -348,7 +348,7 @@ def get_output_nodes(node, cook=True):
     for p in node.output_ports():
         for cp in p.connected_ports():
             n = cp.node()
-            if cook and n.has_property('graph_rect'):
+            if cook and n.has_property("graph_rect"):
                 n.mark_node_to_be_cooked(cp)
             nodes[n.id] = n
     return list(nodes.values())
@@ -475,6 +475,7 @@ def _sort_nodes(graph, start_nodes, reverse=True):
 
 def __remove_BackdropNode(nodes):
     from .node import BackdropNode
+
     for node in nodes[:]:
         if isinstance(node, BackdropNode):
             nodes.remove(node)
@@ -561,7 +562,7 @@ def _update_nodes(nodes):
         try:
             node.run()
         except Exception as error:
-            print("Error Update Node : {}\n{}" .format(node, str(error)))
+            print("Error Update Node : {}\n{}".format(node, str(error)))
             break
 
 
@@ -611,6 +612,7 @@ def update_nodes_by_up(nodes):
 
 # garbage collect
 
+
 def minimize_node_ref_count(node):
     """
     Minimize node reference count for garbage collect.
@@ -619,11 +621,12 @@ def minimize_node_ref_count(node):
         node (NodeGraphQt.NodeObject): node.
     """
     if node.graph is None or node.id not in node.graph.model.nodes:
-        if hasattr(node, 'deleted'):
+        if hasattr(node, "deleted"):
             del node
             return
         from .node import BaseNode
         from .graph import SubGraph
+
         node._parent = None
         if isinstance(node, BaseNode):
             try:
