@@ -84,11 +84,11 @@ class NodeItem(AbstractNodeItem):
             self._width + bg_border,
             self._height + bg_border,
         )
-        radius = self._border_radius
+
         border_color = QtGui.QColor(*self.border_color)
 
         path = QtGui.QPainterPath()
-        path.addRoundedRect(rect, radius, radius)
+        path.addRoundedRect(rect, self._border_radius, self._border_radius)
 
         rect = self.boundingRect().adjusted(
             self._shadow_size, self._shadow_size, -self._shadow_size, -self._shadow_size
@@ -103,16 +103,15 @@ class NodeItem(AbstractNodeItem):
             for i in range(self._shadow_size):
                 pen.setWidth(i + 1)
                 painter.setPen(pen)
-                painter.drawRoundedRect(rect, radius, radius)
+                painter.drawRoundedRect(rect, self._border_radius, self._border_radius)
 
-        radius = 4.0
         painter.setBrush(QtGui.QColor(*self.color))
-        painter.drawRoundedRect(rect, radius, radius)
+        painter.drawRoundedRect(rect, self._border_radius, self._border_radius)
 
         # light overlay on background when selected.
         if self.selected:
             painter.setBrush(QtGui.QColor(*NODE_SEL_COLOR))
-            painter.drawRoundedRect(rect, radius, radius)
+            painter.drawRoundedRect(rect, self._border_radius, self._border_radius)
 
         def _addRoundedRect(
             path,
@@ -176,7 +175,9 @@ class NodeItem(AbstractNodeItem):
             painter.setBrush(QtGui.QColor(30, 30, 30, 200))
             # painter.fillPath(path, painter.brush())
 
-            _addRoundedRect(path, label_rect, radius, radius, 0, 0)
+            _addRoundedRect(
+                path, label_rect, self._border_radius, self._border_radius, 0, 0
+            )
             painter.fillPath(path, painter.brush())
 
         border_width = 2
@@ -193,7 +194,7 @@ class NodeItem(AbstractNodeItem):
         pen = QtGui.QPen(border_color, border_width)
         pen.setCosmetic(self.viewer().get_zoom() < 0.0)
         path = QtGui.QPainterPath()
-        path.addRoundedRect(border_rect, radius, radius)
+        path.addRoundedRect(border_rect, self._border_radius, self._border_radius)
         painter.setBrush(QtCore.Qt.NoBrush)
         painter.setPen(pen)
         painter.drawPath(path)
