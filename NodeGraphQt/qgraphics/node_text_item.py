@@ -10,8 +10,14 @@ class NodeTextItem(QtWidgets.QGraphicsTextItem):
         super(NodeTextItem, self).__init__(text, parent)
         self.setFlags(QtWidgets.QGraphicsItem.ItemIsFocusable)
         self.setCursor(QtCore.Qt.IBeamCursor)
-        self.setToolTip('double-click to edit node name.')
+        self.setToolTip("double-click to edit node name.")
         self.set_editable(False)
+
+    def setDisabled(self, state):
+        font = self.font()
+        font.setItalic(state)
+        self.setFont(font)
+        # self.update()
 
     def mouseDoubleClickEvent(self, event):
         """
@@ -63,9 +69,9 @@ class NodeTextItem(QtWidgets.QGraphicsTextItem):
         """
         if value:
             self.setTextInteractionFlags(
-                QtCore.Qt.TextEditable |
-                QtCore.Qt.TextSelectableByMouse |
-                QtCore.Qt.TextSelectableByKeyboard
+                QtCore.Qt.TextEditable
+                | QtCore.Qt.TextSelectableByMouse
+                | QtCore.Qt.TextSelectableByKeyboard
             )
         else:
             self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)

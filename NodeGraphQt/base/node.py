@@ -5,33 +5,37 @@ from .commands import PropertyChangedCmd
 from .model import NodeModel
 from .port import Port
 from .utils import update_node_down_stream
-from ..constants import (NODE_PROP,
-                         NODE_PROP_QLABEL,
-                         NODE_PROP_QLINEEDIT,
-                         NODE_PROP_QTEXTEDIT,
-                         NODE_PROP_QCOMBO,
-                         NODE_PROP_QCHECKBOX,
-                         NODE_PROP_FILE,
-                         NODE_PROP_FLOAT,
-                         NODE_PROP_INT,
-                         IN_PORT, OUT_PORT,
-                         NODE_LAYOUT_VERTICAL,
-                         NODE_LAYOUT_HORIZONTAL,
-                         NODE_LAYOUT_DIRECTION)
+from ..constants import (
+    NODE_PROP,
+    NODE_PROP_QLABEL,
+    NODE_PROP_QLINEEDIT,
+    NODE_PROP_QTEXTEDIT,
+    NODE_PROP_QCOMBO,
+    NODE_PROP_QCHECKBOX,
+    NODE_PROP_FILE,
+    NODE_PROP_FLOAT,
+    NODE_PROP_INT,
+    IN_PORT,
+    OUT_PORT,
+    NODE_LAYOUT_VERTICAL,
+    NODE_LAYOUT_HORIZONTAL,
+    NODE_LAYOUT_DIRECTION,
+)
 from ..errors import PortRegistrationError, NodeWidgetError
 from ..qgraphics.node_backdrop import BackdropNodeItem
-from ..qgraphics.node_base import NodeItem, NodeItemVertical
-from ..widgets.node_widgets import (NodeBaseWidget,
-                                    NodeComboBox,
-                                    NodeLineEdit,
-                                    NodeFloatEdit,
-                                    NodeIntEdit,
-                                    NodeCheckBox,
-                                    NodeFilePath)
+from ..qgraphics.node_base import NodeItem  # , NodeItemVertical
+from ..widgets.node_widgets import (
+    NodeBaseWidget,
+    NodeComboBox,
+    NodeLineEdit,
+    NodeFloatEdit,
+    NodeIntEdit,
+    NodeCheckBox,
+    NodeFilePath,
+)
 
 
 class _ClassProperty(object):
-
     def __init__(self, f):
         self.f = f
 
@@ -51,13 +55,13 @@ class NodeObject(object):
     """
 
     # Unique node identifier domain. `eg.` ``"com.chantacticvfx"``
-    __identifier__ = 'nodeGraphQt.nodes'
+    __identifier__ = "nodeGraphQt.nodes"
 
     # Base node name.
     NODE_NAME = None
 
     def __init__(self, qgraphics_item=None):
-        assert qgraphics_item, 'qgraphics_item item cannot be None.'
+        assert qgraphics_item, "qgraphics_item item cannot be None."
         self._graph = None
         self._model = NodeModel()
         self._model.type_ = self.type_
@@ -70,7 +74,8 @@ class NodeObject(object):
 
     def __repr__(self):
         return '<{}("{}") object at {}>'.format(
-            self.__class__.__name__, self.NODE_NAME, hex(id(self)))
+            self.__class__.__name__, self.NODE_NAME, hex(id(self))
+        )
 
     @_ClassProperty
     def type_(cls):
@@ -81,7 +86,7 @@ class NodeObject(object):
         Returns:
             str: node type.
         """
-        return cls.__identifier__ + '.' + cls.__name__
+        return cls.__identifier__ + "." + cls.__name__
 
     @property
     def id(self):
@@ -169,9 +174,9 @@ class NodeObject(object):
         Update the node view from model.
         """
         settings = self.model.to_dict[self.model.id]
-        settings['id'] = self.model.id
-        if settings.get('custom'):
-            settings['widgets'] = settings.pop('custom')
+        settings["id"] = self.model.id
+        if settings.get("custom"):
+            settings["widgets"] = settings.pop("custom")
 
         self.view.from_dict(settings)
 
@@ -184,14 +189,14 @@ class NodeObject(object):
         """
         return self.model.name
 
-    def set_name(self, name=''):
+    def set_name(self, name=""):
         """
         Set the name of the node.
 
         Args:
             name (str): name for the node.
         """
-        self.set_property('name', name)
+        self.set_property("name", name)
 
     def color(self):
         """
@@ -212,7 +217,7 @@ class NodeObject(object):
             g (int): green value ``0-255`` range.
             b (int): blue value ``0-255`` range.
         """
-        self.set_property('color', (r, g, b, 255))
+        self.set_property("color", (r, g, b, 255))
 
     def disabled(self):
         """
@@ -230,7 +235,7 @@ class NodeObject(object):
         Args:
             mode(bool): True to disable node.
         """
-        self.set_property('disabled', mode)
+        self.set_property("disabled", mode)
 
     def selected(self):
         """
@@ -249,11 +254,19 @@ class NodeObject(object):
         Args:
             selected (bool): True to select the node.
         """
-        self.set_property('selected', selected)
+        self.set_property("selected", selected)
 
-    def create_property(self, name, value, items=None, range=None,
-                        widget_type=NODE_PROP, tab=None, ext=None,
-                        funcs=None):
+    def create_property(
+        self,
+        name,
+        value,
+        items=None,
+        range=None,
+        widget_type=NODE_PROP,
+        tab=None,
+        ext=None,
+        funcs=None,
+    ):
         """
         Creates a custom property to the node.
 
@@ -292,9 +305,7 @@ class NodeObject(object):
             ext (str): file ext of ``NODE_PROP_FILE``
             funcs (list[function]) list of functions for NODE_PROP_BUTTON
         """
-        self.model.add_property(
-            name, value, items, range, widget_type, tab, ext, funcs
-        )
+        self.model.add_property(name, value, items, range, widget_type, tab, ext, funcs)
 
     def properties(self):
         """
@@ -304,7 +315,7 @@ class NodeObject(object):
             dict: a dictionary of node properties.
         """
         props = self.model.to_dict[self.id].copy()
-        props['id'] = self.id
+        props["id"] = self.id
         return props
 
     def get_property(self, name):
@@ -317,7 +328,7 @@ class NodeObject(object):
         Returns:
             object: property data.
         """
-        if self.graph and name == 'selected':
+        if self.graph and name == "selected":
             self.model.set_property(name, self.view.selected)
 
         return self.model.get_property(name)
@@ -338,9 +349,9 @@ class NodeObject(object):
         except:
             pass
 
-        if self.graph and name == 'name':
+        if self.graph and name == "name":
             if len(value) == 0:
-                value = '_'
+                value = "_"
             value = self.graph.get_unique_name(value)
             self.NODE_NAME = value
 
@@ -393,7 +404,7 @@ class NodeObject(object):
             x (float or int): node X position.
             y (float or int): node Y position.
         """
-        self.set_property('pos', [float(x), float(y)])
+        self.set_property("pos", [float(x), float(y)])
 
     def x_pos(self):
         """
@@ -525,7 +536,7 @@ class BaseNode(NodeObject):
                 self.add_output('out')
     """
 
-    NODE_NAME = 'Base Node'
+    NODE_NAME = "Base Node"
 
     def __init__(self):
         view = None
@@ -560,16 +571,22 @@ class BaseNode(NodeObject):
         Hide node.
         """
         super(BaseNode, self).hide()
-        [pipe.hide() for port in self._inputs + self._outputs
-         for pipe in port.view.connected_pipes]
+        [
+            pipe.hide()
+            for port in self._inputs + self._outputs
+            for pipe in port.view.connected_pipes
+        ]
 
     def show(self):
         """
         Show node.
         """
         super(BaseNode, self).show()
-        [pipe.show() for port in self._inputs + self._outputs
-         for pipe in port.view.connected_pipes]
+        [
+            pipe.show()
+            for port in self._inputs + self._outputs
+            for pipe in port.view.connected_pipes
+        ]
         self.draw(False)
 
     def update_model(self):
@@ -577,7 +594,7 @@ class BaseNode(NodeObject):
         Update the node model from view.
         """
         for name, val in self.view.properties.items():
-            if name in ['inputs', 'outputs']:
+            if name in ["inputs", "outputs"]:
                 continue
             self.model.set_property(name, val)
 
@@ -591,7 +608,7 @@ class BaseNode(NodeObject):
         Args:
             icon (str): path to the icon image. 
         """
-        self.set_property('icon', icon)
+        self.set_property("icon", icon)
 
     def icon(self):
         """
@@ -648,17 +665,15 @@ class BaseNode(NodeObject):
             tab (str): name of the widget tab to display in.
         """
         if not isinstance(widget, NodeBaseWidget):
-            raise NodeWidgetError(
-                '\'widget\' must be an instance of a NodeBaseWidget')
-        self.create_property(widget.get_name(),
-                             widget.get_value(),
-                             widget_type=widget_type,
-                             tab=tab)
+            raise NodeWidgetError("'widget' must be an instance of a NodeBaseWidget")
+        self.create_property(
+            widget.get_name(), widget.get_value(), widget_type=widget_type, tab=tab
+        )
         widget.value_changed.connect(lambda k, v: self.set_property(k, v))
         widget._node = self
         self.view.add_widget(widget)
 
-    def add_combo_menu(self, name, label='', items=None, tab=None):
+    def add_combo_menu(self, name, label="", items=None, tab=None):
         """
         Creates a custom property with the :meth:`NodeObject.create_property`
         function and embeds a :class:`PySide2.QtWidgets.QComboBox` widget
@@ -676,13 +691,14 @@ class BaseNode(NodeObject):
         """
         items = items or []
         self.create_property(
-            name, items[0], items=items, widget_type=NODE_PROP_QCOMBO, tab=tab)
+            name, items[0], items=items, widget_type=NODE_PROP_QCOMBO, tab=tab
+        )
 
         widget = NodeComboBox(self.view, name, label, items)
         widget.value_changed.connect(lambda k, v: self.set_property(k, v))
         self.view.add_widget(widget)
 
-    def add_text_input(self, name, label='', text='', tab=None, multi_line=False):
+    def add_text_input(self, name, label="", text="", tab=None, multi_line=False):
         """
         Creates a custom property with the :meth:`NodeObject.create_property`
         function and embeds a :class:`PySide2.QtWidgets.QLineEdit` widget
@@ -701,13 +717,12 @@ class BaseNode(NodeObject):
         """
         wid_type = NODE_PROP_QTEXTEDIT if multi_line else NODE_PROP_QLINEEDIT
 
-        self.create_property(
-            name, text, widget_type=wid_type, tab=tab)
+        self.create_property(name, text, widget_type=wid_type, tab=tab)
         widget = NodeLineEdit(self.view, name, label, text)
         widget.value_changed.connect(lambda k, v: self.set_property(k, v))
         self.view.add_widget(widget)
 
-    def add_file_input(self, name, label='', text='', tab=None, ext="*"):
+    def add_file_input(self, name, label="", text="", tab=None, ext="*"):
         """
         Creates a custom property with the :meth:`NodeObject.create_property`
         function and embeds a :class:`PySide2.QtWidgets.QLineEdit` widget
@@ -724,13 +739,12 @@ class BaseNode(NodeObject):
             tab (str): name of the widget tab to display in.
             ext (str): file ext
         """
-        self.create_property(
-            name, text, widget_type=NODE_PROP_FILE, tab=tab, ext=ext)
+        self.create_property(name, text, widget_type=NODE_PROP_FILE, tab=tab, ext=ext)
         widget = NodeFilePath(self.view, name, label, text, ext)
         widget.value_changed.connect(lambda k, v: self.set_property(k, v))
         self.view.add_widget(widget)
 
-    def add_float_input(self, name, label='', value=0.0, range=None, tab=None):
+    def add_float_input(self, name, label="", value=0.0, range=None, tab=None):
         """
         Creates a custom property with the :meth:`NodeObject.create_property`
         function and embeds a :class:`PySide2.QtWidgets.QLineEdit` widget
@@ -748,12 +762,13 @@ class BaseNode(NodeObject):
             tab (str): name of the widget tab to display in.
         """
         self.create_property(
-            name, value, widget_type=NODE_PROP_FLOAT, range=range, tab=tab)
+            name, value, widget_type=NODE_PROP_FLOAT, range=range, tab=tab
+        )
         widget = NodeFloatEdit(self.view, name, label, value)
         widget.value_changed.connect(lambda k, v: self.set_property(k, v))
         self.view.add_widget(widget)
 
-    def add_int_input(self, name, label='', value=0, range=None, tab=None):
+    def add_int_input(self, name, label="", value=0, range=None, tab=None):
         """
         Creates a custom property with the :meth:`NodeObject.create_property`
         function and embeds a :class:`PySide2.QtWidgets.QLineEdit` widget
@@ -771,12 +786,13 @@ class BaseNode(NodeObject):
             tab (str): name of the widget tab to display in.
         """
         self.create_property(
-            name, value, widget_type=NODE_PROP_INT, range=range, tab=tab)
+            name, value, widget_type=NODE_PROP_INT, range=range, tab=tab
+        )
         widget = NodeIntEdit(self.view, name, label, value)
         widget.value_changed.connect(lambda k, v: self.set_property(k, v))
         self.view.add_widget(widget)
 
-    def add_checkbox(self, name, label='', text='', state=False, tab=None):
+    def add_checkbox(self, name, label="", text="", state=False, tab=None):
         """
         Creates a custom property with the :meth:`NodeObject.create_property`
         function and embeds a :class:`PySide2.QtWidgets.QCheckBox` widget
@@ -793,15 +809,21 @@ class BaseNode(NodeObject):
             state (bool): pre-check.
             tab (str): name of the widget tab to display in.
         """
-        self.create_property(
-            name, state, widget_type=NODE_PROP_QCHECKBOX, tab=tab)
+        self.create_property(name, state, widget_type=NODE_PROP_QCHECKBOX, tab=tab)
         widget = NodeCheckBox(self.view, name, label, text, state)
         widget.value_changed.connect(lambda k, v: self.set_property(k, v))
         self.view.add_widget(widget)
 
-    def add_input(self, name='input', multi_input=False, display_name=True,
-                  color=None, data_type='NoneType', locked=False,
-                  painter_func=None):
+    def add_input(
+        self,
+        name="input",
+        multi_input=False,
+        display_name=True,
+        color=None,
+        data_type="NoneType",
+        locked=False,
+        painter_func=None,
+    ):
         """
         Add input :class:`Port` to node.
 
@@ -820,7 +842,8 @@ class BaseNode(NodeObject):
         """
         if name in self.inputs().keys():
             raise PortRegistrationError(
-                'port name "{}" already registered.'.format(name))
+                'port name "{}" already registered.'.format(name)
+            )
 
         port_args = [name, multi_input, display_name, locked]
         if painter_func and callable(painter_func):
@@ -842,9 +865,16 @@ class BaseNode(NodeObject):
         self.model.inputs[port.name()] = port.model
         return port
 
-    def add_output(self, name='output', multi_output=True, display_name=True,
-                   color=None, data_type='NoneType', locked=False,
-                   painter_func=None):
+    def add_output(
+        self,
+        name="output",
+        multi_output=True,
+        display_name=True,
+        color=None,
+        data_type="NoneType",
+        locked=False,
+        painter_func=None,
+    ):
         """
         Add output :class:`Port` to node.
 
@@ -863,7 +893,8 @@ class BaseNode(NodeObject):
         """
         if name in self.outputs().keys():
             raise PortRegistrationError(
-                'port name "{}" already registered.'.format(name))
+                'port name "{}" already registered.'.format(name)
+            )
 
         port_args = [name, multi_output, display_name, locked]
         if painter_func and callable(painter_func):
@@ -896,7 +927,7 @@ class BaseNode(NodeObject):
             return
         old_value = self.get_property(name)
         self.set_property(name, items)
-        _name = '_' + name + "_"
+        _name = "_" + name + "_"
         if not self.has_property(_name):
             self.create_property(_name, items)
         else:
@@ -1017,16 +1048,24 @@ class BaseNode(NodeObject):
         self._outputs = []
         self._model.outputs = {}
         self._model.inputs = {}
-        [self.add_input(name=port['name'],
-                        multi_input=port['multi_connection'],
-                        display_name=port['display_name'],
-                        data_type=port['data_type'])
-         for port in port_data['input_ports']]
-        [self.add_output(name=port['name'],
-                         multi_output=port['multi_connection'],
-                         display_name=port['display_name'],
-                         data_type=port['data_type'])
-         for port in port_data['output_ports']]
+        [
+            self.add_input(
+                name=port["name"],
+                multi_input=port["multi_connection"],
+                display_name=port["display_name"],
+                data_type=port["data_type"],
+            )
+            for port in port_data["input_ports"]
+        ]
+        [
+            self.add_output(
+                name=port["name"],
+                multi_output=port["multi_connection"],
+                display_name=port["display_name"],
+                data_type=port["data_type"],
+            )
+            for port in port_data["output_ports"]
+        ]
         self.draw()
 
     def inputs(self):
@@ -1214,15 +1253,15 @@ class BackdropNode(NodeObject):
         :width: 250px
     """
 
-    NODE_NAME = 'Backdrop'
+    NODE_NAME = "Backdrop"
 
     def __init__(self):
         super(BackdropNode, self).__init__(BackdropNodeItem())
         # override base default color.
         self.model.color = (5, 129, 138, 255)
-        self.create_property('backdrop_text', '',
-                             widget_type=NODE_PROP_QTEXTEDIT,
-                             tab='Backdrop')
+        self.create_property(
+            "backdrop_text", "", widget_type=NODE_PROP_QTEXTEDIT, tab="Backdrop"
+        )
 
     def on_backdrop_updated(self, update_prop, value=None):
         """
@@ -1233,17 +1272,17 @@ class BackdropNode(NodeObject):
             update_prop (str): update property type.
             value (object): update value (optional)
         """
-        if update_prop == 'sizer_mouse_release':
+        if update_prop == "sizer_mouse_release":
             self.graph.begin_undo('resized "{}"'.format(self.name()))
-            self.set_property('width', value['width'])
-            self.set_property('height', value['height'])
-            self.set_pos(*value['pos'])
+            self.set_property("width", value["width"])
+            self.set_property("height", value["height"])
+            self.set_pos(*value["pos"])
             self.graph.end_undo()
-        elif update_prop == 'sizer_double_clicked':
+        elif update_prop == "sizer_double_clicked":
             self.graph.begin_undo('"{}" auto resize'.format(self.name()))
-            self.set_property('width', value['width'])
-            self.set_property('height', value['height'])
-            self.set_pos(*value['pos'])
+            self.set_property("width", value["width"])
+            self.set_property("height", value["height"])
+            self.set_pos(*value["pos"])
             self.graph.end_undo()
 
     def auto_size(self):
@@ -1252,9 +1291,9 @@ class BackdropNode(NodeObject):
         """
         self.graph.begin_undo('"{}" auto resize'.format(self.name()))
         size = self.view.calc_backdrop_size()
-        self.set_property('width', size['width'])
-        self.set_property('height', size['height'])
-        self.set_pos(*size['pos'])
+        self.set_property("width", size["width"])
+        self.set_property("height", size["height"])
+        self.set_pos(*size["pos"])
         self.graph.end_undo()
 
     def wrap_nodes(self, nodes):
@@ -1268,9 +1307,9 @@ class BackdropNode(NodeObject):
             return
         self.graph.begin_undo('"{}" wrap nodes'.format(self.name()))
         size = self.view.calc_backdrop_size([n.view for n in nodes])
-        self.set_property('width', size['width'])
-        self.set_property('height', size['height'])
-        self.set_pos(*size['pos'])
+        self.set_property("width", size["width"])
+        self.set_property("height", size["height"])
+        self.set_pos(*size["pos"])
         self.graph.end_undo()
 
     def nodes(self):
@@ -1283,14 +1322,14 @@ class BackdropNode(NodeObject):
         node_ids = [n.id for n in self.view.get_nodes()]
         return [self.graph.get_node_by_id(nid) for nid in node_ids]
 
-    def set_text(self, text=''):
+    def set_text(self, text=""):
         """
         Sets the text to be displayed in the backdrop node.
 
         Args:
             text (str): text string.
         """
-        self.set_property('backdrop_text', text)
+        self.set_property("backdrop_text", text)
 
     def text(self):
         """
@@ -1299,7 +1338,7 @@ class BackdropNode(NodeObject):
         Returns:
             str: text string.
         """
-        return self.get_property('backdrop_text')
+        return self.get_property("backdrop_text")
 
     def set_size(self, width, height):
         """
@@ -1310,9 +1349,9 @@ class BackdropNode(NodeObject):
             height (float): backdrop height size.
         """
         if self.graph:
-            self.graph.begin_undo('backdrop size')
-            self.set_property('width', width)
-            self.set_property('height', height)
+            self.graph.begin_undo("backdrop size")
+            self.set_property("width", width)
+            self.set_property("height", height)
             self.graph.end_undo()
             return
         self.view.width, self.view.height = width, height

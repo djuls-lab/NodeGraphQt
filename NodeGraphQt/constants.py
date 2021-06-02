@@ -35,9 +35,9 @@ PIPE_LAYOUT_ANGLE = 2
 # === PORT ===
 
 #: Connection type for input ports.
-IN_PORT = 'in'
+IN_PORT = "in"
 #: Connection type for output ports.
-OUT_PORT = 'out'
+OUT_PORT = "out"
 
 PORT_DEFAULT_SIZE = 22.0
 PORT_DEFAULT_COLOR = (49, 115, 100, 255)
@@ -53,7 +53,8 @@ PORT_FALLOFF = 15.0
 NODE_WIDTH = 170
 NODE_HEIGHT = 80
 NODE_ICON_SIZE = 24
-NODE_SEL_COLOR = (255, 255, 255, 30)
+NODE_SEL_COLOR = (255, 255, 255, 32)
+NODE_BORDER_COLOR = (255, 255, 255, 64)
 NODE_SEL_BORDER_COLOR = (254, 207, 42, 255)
 
 # === NODE PROPERTY ===
@@ -106,15 +107,15 @@ VIEWER_BG_COLOR = (35, 35, 35)
 VIEWER_GRID_COLOR = (45, 45, 45)
 VIEWER_GRID_SIZE = 50
 
-URI_SCHEME = 'nodegraphqt://'
-URN_SCHEME = 'nodegraphqt::'
+URI_SCHEME = "nodegraphqt://"
+URN_SCHEME = "nodegraphqt::"
 
 # === PATHS ===
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-ICON_PATH = os.path.join(BASE_PATH, 'widgets', 'icons')
-ICON_DOWN_ARROW = os.path.join(ICON_PATH, 'down_arrow.png')
-ICON_NODE_BASE = os.path.join(ICON_PATH, 'node_base.png')
+ICON_PATH = os.path.join(BASE_PATH, "widgets", "icons")
+ICON_DOWN_ARROW = os.path.join(ICON_PATH, "down_arrow.png")
+ICON_NODE_BASE = os.path.join(ICON_PATH, "node_base.png")
 
 # === DRAW STACK ORDER ===
 
